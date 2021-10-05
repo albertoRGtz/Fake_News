@@ -65,6 +65,9 @@ class FakeEnv(gym.Env):
     self.nlp1= pipeline('ner', grouped_entities=True)
     self.nlp1= pipeline('ner',model='vblagoje/bert-english-uncased-finetuned-pos', grouped_entities=True)
 
+    self.options = webdriver.FirefoxOptions()
+    self.options.add_argument('-headless')
+    self.driver = webdriver.Firefox(executable_path=r'./geckodriver', firefox_options=options)
     
 
     #Space variables
@@ -85,22 +88,22 @@ class FakeEnv(gym.Env):
 
 
   def duckduck_(self,query,n=40,verbose=False):
-    driver.get('https://duckduckgo.com/')
-    search_box = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.NAME, "q")))
+    self.driver.get('https://duckduckgo.com/')
+    search_box = WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.NAME, "q")))
     search_box.send_keys(query)
     search_box.submit()
 
-    elements = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
-    nxt_page=WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn--full")))
+    elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
+    nxt_page=WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn--full")))
     n_=len(elements)
     while nxt_page and n_<n:
         nxt_page.click()
         try:
-            nxt_page=WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn--full")))
-            elements = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
+            nxt_page=WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn--full")))
+            elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
         except TimeoutException:
             nxt_page=None
-            elements = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
+            elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
         n_=len(elements)
 
     snippets=[]

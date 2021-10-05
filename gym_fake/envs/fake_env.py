@@ -62,7 +62,6 @@ class FakeEnv(gym.Env):
     self.MODEL_NAME="bert-base-uncased"
     self.model = AutoModel.from_pretrained(self.MODEL_NAME,output_hidden_states=True)
     self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
-    self.nlp1= pipeline('ner', grouped_entities=True)
     self.nlp1= pipeline('ner',model='vblagoje/bert-english-uncased-finetuned-pos', grouped_entities=True)
 
     self.options = webdriver.FirefoxOptions()

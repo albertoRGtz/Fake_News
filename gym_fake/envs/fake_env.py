@@ -66,7 +66,7 @@ class FakeEnv(gym.Env):
     self.summarizer = pipeline("summarization")
     self.options = webdriver.FirefoxOptions()
     self.options.add_argument('-headless')
-    self.driver = webdriver.Firefox(executable_path=r'/home/diegobalam/Fake_news/Fake_News-main/gym_fake/envs/geckodriver', firefox_options=self.options)
+    self.driver = webdriver.Firefox(executable_path=r'/home/balam/balam/Fake_News/gym_fake/envs/geckodriver', firefox_options=self.options)
     
 
     #Space variables

@@ -32,7 +32,7 @@ class FakeEnv(gym.Env):
   def __init__(self):
     self.actions_grid=['same_query','next_query','record_return','record_step','stop']
     self.actions_kb=["no_relation","positive","negative"]
-    self.noticias= pd.read_csv("/home/diegobalam/Fake_news/Fake_News-main/gym_fake/data/data.csv").drop_duplicates() ##base de noticias
+    self.noticias= pd.read_csv("/home/balam/balam/Fake_News/gym_fake/data/data.csv").drop_duplicates() ##base de noticias
     self.num_noticias=len(self.noticias)-1
     #self.web_data_frame = pd.DataFrame()
     self.noticias_ind=-1

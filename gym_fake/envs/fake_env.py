@@ -324,7 +324,7 @@ class FakeEnv(gym.Env):
     return 1 - cose
 
   def separar(self,texto):
-    org=nlp1(texto)
+    org=self.nlp1(texto)
     Noun=[]
     Verbs=[]
     Adj=[]

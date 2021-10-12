@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 import json
+import torch
 
 import gym
 from gym import error, spaces, utils

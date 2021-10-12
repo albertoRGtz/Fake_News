@@ -16,6 +16,9 @@ import gin
 
 from flax import linen as nn
 
+env = gym.make("gym_fake:fake-v0")
+#env=gym.make('CartPole-v1')
+
 from dopamine.discrete_domains import atari_lib
 class FakeDQNNetwork(nn.Module):
   """Jax DQN network for Cartpole."""

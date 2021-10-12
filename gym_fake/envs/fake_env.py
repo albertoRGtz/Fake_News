@@ -296,7 +296,7 @@ class FakeEnv(gym.Env):
         id=[i]
       i+=1
     if pal=='non':
-      res=token_esp(tokenized_text)
+      res=self.token_esp(tokenized_text)
       j=0
       for item in res[0]:
         idx=item.find(palab.lower())

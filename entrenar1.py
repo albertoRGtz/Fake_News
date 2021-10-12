@@ -21,7 +21,7 @@ import dopamine.discrete_domains.run_experiment
 import dopamine.agents.dqn.dqn_agent
 import dopamine.replay_memory.circular_replay_buffer
 import gin.tf.external_configurables
-import fake_gym
+import gym_fake
 import testConfiguration
 import tensorflow
 

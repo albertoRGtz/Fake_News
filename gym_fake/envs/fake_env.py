@@ -413,9 +413,9 @@ class FakeEnv(gym.Env):
     self.add_general(prom,prom1)
 
     re3=0.5-prom
-    if (1-realidad[0])==0:
+    if (1-self.realidad[0])==0:
       re4=0.5-dis2
-    if (1-realidad[0])==1:
+    if (1-self.realidad[0])==1:
       re4=dis2-0.5
 
     re=re+re3+re4

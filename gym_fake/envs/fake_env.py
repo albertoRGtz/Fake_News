@@ -138,10 +138,10 @@ class FakeEnv(gym.Env):
     stat=[]
     for i in range(0,768):
       #stat.append=self.state[0].detach().numpy()[i]
-      stat.append=self.state[0][i]
+      stat.append(self.state[0][i])
     for i in range(0,768):
       #stat.append=self.state[1].detach().numpy()[i]
-      stat.append=self.state[0][i]
+      stat.append(self.state[0][i])
     stat.append(self.agent_db[0])
     stat.append(self.agent_db[1])
     return [stat,reward,self.episode_continues,{}]

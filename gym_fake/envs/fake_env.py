@@ -445,7 +445,7 @@ class FakeEnv(gym.Env):
     if (1-self.realidad[0])==1:
       re4=dis2-0.5
       
-    re5=mask(texto1,texto2)
+    re5=self.mask(texto1,texto2)
 
     re=re+re3+re4+re5
 

@@ -368,6 +368,31 @@ class FakeEnv(gym.Env):
     self.state[1]=mat2
 
     
+  def self.mask(self,text1,text2):
+    palabras=text1.split()
+    num=randint(0,len(palabras))
+    palabras[num]="[MASK]"
+    linea=palabras[0]
+    for i in range(1,len(palabras)):
+      linea+=" "
+      linea+=palabras[i]
+    if linea.split()[-1]=="[MASK]":
+      linea+="."
+    texto=text2+"."+" "+linea
+    res=self.unmasker(texto)[0]['sequence']
+    print(res)
+    oraciones=res.split(".")
+    print(oraciones)
+    resul=oraciones[-1]
+    print(resul)
+    code=0
+    print(text1.lower())
+    text1=" "+text1
+    if resul.lower()==text1.lower():
+        code=1
+    return code
+
+    
   def _get_reward(self,texto1,texto2, action):
         
     mat1=self.trans(texto1)
@@ -415,14 +440,16 @@ class FakeEnv(gym.Env):
     self.add_general(prom,prom1)
 
     re3=0.5-prom
-    if (1-self.realidad[0])==0:
+    if (1-realidad[0])==0:
       re4=0.5-dis2
-    if (1-self.realidad[0])==1:
+    if (1-realidad[0])==1:
       re4=dis2-0.5
+      
+    re5=mask(texto1,texto2)
 
-    re=re+re3+re4
+    re=re+re3+re4+re5
 
-    return re
+    return re,state
   """
   @gin.configurable
   def general_agent(step=None,reward=None):

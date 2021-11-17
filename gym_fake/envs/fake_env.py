@@ -368,7 +368,7 @@ class FakeEnv(gym.Env):
     self.state[1]=mat2
 
     
-  def self.mask(self,text1,text2):
+  def mask(self,text1,text2):
     palabras=text1.split()
     num=randint(0,len(palabras))
     palabras[num]="[MASK]"

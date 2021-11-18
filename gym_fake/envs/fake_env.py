@@ -51,6 +51,7 @@ class FakeEnv(gym.Env):
     self.num_steps_per_episode=0
     self.state=[0,0]
     self.env=self
+    self.unmasker = pipeline('fill-mask', model='bert-base-uncased')
     self.actionHash={key:selection for key,selection
                       in enumerate(
                         itertools.product(

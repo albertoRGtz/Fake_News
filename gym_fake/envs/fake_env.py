@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 import json
 import torch
-
+import random
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
@@ -370,7 +370,7 @@ class FakeEnv(gym.Env):
     
   def mask(self,text1,text2):
     palabras=text1.split()
-    num=randint(0,len(palabras))
+    num=random.randint(0,len(palabras))
     palabras[num]="[MASK]"
     linea=palabras[0]
     for i in range(1,len(palabras)):

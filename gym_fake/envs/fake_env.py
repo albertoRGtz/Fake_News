@@ -421,9 +421,23 @@ class FakeEnv(gym.Env):
     Ad_nuev=self.checar(sep_nuev[1][0]['word'],token_vecs_nuev[1][0])
     vec_ori=self.vec(Ad_ori[1],token_vecs_ori[0])
     vec_nuev=self.vec(Ad_nuev[1],token_vecs_nuev[0])
+    dis2A=self.calculate_cos_distance(vec_ori,vec_nuev)
     
-  
-    dis2=self.calculate_cos_distance(vec_ori,vec_nuev)
+    #Noun
+    Noun_ori=self.checar(sep_ori[0][0]['word'],token_vecs_ori[1][0])
+    Noun_nuev=self.checar(sep_nuev[0][0]['word'],token_vecs_nuev[1][0])
+    vec_ori=self.vec(Noun_ori[1],token_vecs_ori[0])
+    vec_nuev=self.vec(Noun_nuev[1],token_vecs_nuev[0])
+    dis2N=self.calculate_cos_distance(vec_ori,vec_nuev)
+    
+    #Verb
+    Verb_ori=self.checar(sep_ori[0][0]['word'],token_vecs_ori[1][0])
+    Verb_nuev=self.checar(sep_nuev[0][0]['word'],token_vecs_nuev[1][0])
+    vec_ori=self.vec(Verb_ori[1],token_vecs_ori[0])
+    vec_nuev=self.vec(Verb_nuev[1],token_vecs_nuev[0])
+    dis2V=self.calculate_cos_distance(vec_ori,vec_nuev)
+    dis2=(dis2A+dis2N+dis2V)/3
+    
     if action==1:
       re2=1-dis2
     

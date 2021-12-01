@@ -464,7 +464,7 @@ class FakeEnv(gym.Env):
 
     re=re+re3+re4+re5
 
-    return re,state
+    return re
   """
   @gin.configurable
   def general_agent(step=None,reward=None):

@@ -24,8 +24,10 @@ from tensorflow.keras.models import load_model
 from transformers import AutoModel, AutoTokenizer, BertTokenizer, BertForSequenceClassification, AutoModelForSequenceClassification, BertModel, AutoConfig
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from transformers import BertTokenizer, BertConfig
+import search
 
 pass
+
 
 class FakeEnv(gym.Env):
   metadata = {'render.modes': ['human']}
@@ -33,7 +35,7 @@ class FakeEnv(gym.Env):
   def __init__(self):
     self.actions_grid=['same_query','next_query','record_return','record_step','stop']
     self.actions_kb=["no_relation","positive","negative"]
-    self.noticias= pd.read_csv("/home/balam/balam/Fake_News/gym_fake/data/data.csv").drop_duplicates() ##base de noticias
+    self.noticias= pd.read_csv("/home/alberto/servicio/Fake_News/gym_fake/data/data.csv").drop_duplicates() ##base de noticias
     self.num_noticias=len(self.noticias)-1
     #self.web_data_frame = pd.DataFrame()
     self.noticias_ind=-1
@@ -50,6 +52,8 @@ class FakeEnv(gym.Env):
     self.episode_continues=False
     self.num_steps_per_episode=0
     self.state=[0,0]
+    self.engine = 0
+    # 0-duckduck; 1-scholar; 2-bing; 3-researchgate
     self.env=self
     self.unmasker = pipeline('fill-mask', model='bert-base-uncased')
     self.actionHash={key:selection for key,selection
@@ -68,7 +72,7 @@ class FakeEnv(gym.Env):
     self.summarizer = pipeline("summarization")
     self.options = webdriver.FirefoxOptions()
     self.options.add_argument('-headless')
-    self.driver = webdriver.Firefox(executable_path=r'/home/balam/balam/Fake_News/gym_fake/envs/geckodriver', firefox_options=self.options)
+    self.driver = webdriver.Firefox(executable_path=r'/home/alberto/servicio/Fake_News/gym_fake/envs/geckodriver', firefox_options=self.options)
     
 
     #Space variables
@@ -86,45 +90,7 @@ class FakeEnv(gym.Env):
     action_grid,action_kb=self.actionHash[action]
     return action_grid,action_kb
 
-
-
-  def duckduck_(self,query,n=40,verbose=False):
-    self.driver.get('https://duckduckgo.com/')
-    search_box = WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.NAME, "q")))
-    search_box.send_keys(query)
-    search_box.submit()
-
-    elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
-    nxt_page=WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn--full")))
-    n_=len(elements)
-    while nxt_page and n_<n:
-        nxt_page.click()
-        try:
-            nxt_page=WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "btn--full")))
-            elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
-        except TimeoutException:
-            nxt_page=None
-            elements = WebDriverWait(self.driver, 10).until(EC.visibility_of_all_elements_located((By.XPATH, "//div[contains(@class,'result__body')]")))
-        n_=len(elements)
-
-    snippets=[]
-    for position,ele in enumerate(elements):
-        html=ele.get_attribute("outerHTML")
-        soup = BeautifulSoup(html,  "html.parser")
-        #soup=BeautifulSoup(html, 'lxml')
-        title=soup.find_all("h2", class_="result__title")[0]
-        href=soup.find_all("a", class_="result__a")[0]
-        snippet=soup.find_all("div", class_="result__snippet")[0]
-        #print(html)
-        if not href['href'].startswith("https://duckduckgo.com/y.js?"):
-            snippets.append({"position":position,"title":href.text,"href":href["href"],"text":snippet.text})
-
-    snippets=snippets[:n]
-
-    return snippets
-
   
-
   def step(self, action,agent_db=None):
     """ ejecutamos el paso y regresamos el reward """
     """ debemos regresar un arreglo del tipo:
@@ -148,6 +114,16 @@ class FakeEnv(gym.Env):
     return [stat,reward,self.episode_continues,{}]
 
 
+  def get_snippets(self, query):
+    if self.engine == 0:
+      return search.duckduck_(query, 'name', n=40, verbose=False)
+    elif self.engine == 1:
+      return search.scholar_(query, 'name', n=40, verbose=False)
+    elif self.engine == 2:
+      return search.bing_(query, 'name', n=40, verbose=False)
+    else:
+      return search.researchgate_(query, 'name', n=40, verbose=False)
+    
 
 
   def reset(self):
@@ -163,8 +139,7 @@ class FakeEnv(gym.Env):
 
      #set stepepisodeDFDF
     Head=self.noticias['Headline'][self.noticias_ind]
-    self.episodeDF= pd.DataFrame.from_dict(self.duckduck_(self.noticias['Headline'][self.noticias_ind]))
-    
+    self.episodeDF= pd.DataFrame.from_dict(self.get_snippets(self.noticias['Headline'][self.noticias_ind]))
     self.realidad[0]=self.noticias['Label'][self.noticias_ind]
     #set Query lists and indexes for queryDFs
     self.querys_step=[Head,Head+'True',Head+'False'] #Los querys, se debe cambiar de momento no se necesita
@@ -216,14 +191,14 @@ class FakeEnv(gym.Env):
       self.query_ind=self.query_ind
     else:
       self.query_ind+=1
-    self.episodeDF=pd.DataFrame.from_dict(self.duckduck_(self.querys_step[self.query_ind]))
+    self.episodeDF=pd.DataFrame.from_dict(self.get_snippets(self.querys_step[self.query_ind]))
 
   def _query_return(self):
     if self.query_ind==0:
       self.query_ind=self.query_indexes[-1]
     else:
       self.query_ind-=1
-    self.episodeDF=pd.DataFrame.from_dict(self.duckduck_(self.querys_step[self.query_ind]))
+    self.episodeDF=pd.DataFrame.from_dict(self.get_snippets(self.querys_step[self.query_ind]))
 
     
   def _record_return(self):
@@ -421,23 +396,9 @@ class FakeEnv(gym.Env):
     Ad_nuev=self.checar(sep_nuev[1][0]['word'],token_vecs_nuev[1][0])
     vec_ori=self.vec(Ad_ori[1],token_vecs_ori[0])
     vec_nuev=self.vec(Ad_nuev[1],token_vecs_nuev[0])
-    dis2A=self.calculate_cos_distance(vec_ori,vec_nuev)
     
-    #Noun
-    Noun_ori=self.checar(sep_ori[0][0]['word'],token_vecs_ori[1][0])
-    Noun_nuev=self.checar(sep_nuev[0][0]['word'],token_vecs_nuev[1][0])
-    vec_ori=self.vec(Noun_ori[1],token_vecs_ori[0])
-    vec_nuev=self.vec(Noun_nuev[1],token_vecs_nuev[0])
-    dis2N=self.calculate_cos_distance(vec_ori,vec_nuev)
-    
-    #Verb
-    Verb_ori=self.checar(sep_ori[0][0]['word'],token_vecs_ori[1][0])
-    Verb_nuev=self.checar(sep_nuev[0][0]['word'],token_vecs_nuev[1][0])
-    vec_ori=self.vec(Verb_ori[1],token_vecs_ori[0])
-    vec_nuev=self.vec(Verb_nuev[1],token_vecs_nuev[0])
-    dis2V=self.calculate_cos_distance(vec_ori,vec_nuev)
-    dis2=(dis2A+dis2N+dis2V)/3
-    
+  
+    dis2=self.calculate_cos_distance(vec_ori,vec_nuev)
     if action==1:
       re2=1-dis2
     
@@ -464,7 +425,7 @@ class FakeEnv(gym.Env):
 
     re=re+re3+re4+re5
 
-    return re
+    return re,state
   """
   @gin.configurable
   def general_agent(step=None,reward=None):

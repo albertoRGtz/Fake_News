@@ -16,7 +16,7 @@ import gin
 
 from flax import linen as nn
 
-env = gym.make("gym_fake:fake-v0")
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            env = gym.make("gym_fake:fake-v0")
 #env=gym.make('CartPole-v1')
 
 from dopamine.discrete_domains import atari_lib
@@ -34,9 +34,9 @@ class FakeDQNNetwork(nn.Module):
     #print(2)
     #x /= np.array(np.ones(768)*(-10)) - np.array(np.ones(768)*(-10))
     #x = 2.0 * x - 1.0  # Rescale in range [-1, 1].
-    x = nn.Dense(features=768, kernel_init=initializer)(x)
+    x = nn.Dense(features=512, kernel_init=initializer)(x)
     x = nn.relu(x)
-    x = nn.Dense(features=768, kernel_init=initializer)(x)
+    x = nn.Dense(features=512, kernel_init=initializer)(x)
     x = nn.relu(x)
     print(3)
     q_values = nn.Dense(features=self.num_actions, kernel_init=initializer)(x)
